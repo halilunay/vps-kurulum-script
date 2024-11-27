@@ -1,6 +1,11 @@
+
 #!/bin/bash
 
-# SWAP Alanı Oluşturma
+# Varsayılan Kullanıcı Adı ve Şifre
+CUSTOM_USER=${CUSTOM_USER:-admin}
+PASSWORD=${PASSWORD:-admin}
+
+# Swap Alanı Oluşturma
 echo ">>> Swap alanı oluşturuluyor (10 GB)..."
 sudo dd if=/dev/zero of=/swapfile bs=1M count=10240 status=progress
 sudo chmod 600 /swapfile
@@ -31,13 +36,6 @@ echo ">>> Docker Compose başarıyla kuruldu."
 # Chromium için Docker Konteynerinin Kurulumu
 echo ">>> Chromium için Docker konteyner kuruluyor..."
 mkdir -p $HOME/chromium
-cd $HOME/chromium
-
-docker pull lscr.io/linuxserver/chromium:latest
-
-mkdir -p /tmp/.X11-unix
-chmod 1777 /tmp/.X11-unix
-
 cat <<EOL > $HOME/chromium/docker-compose.yaml
 services:
   chromium:
@@ -46,8 +44,8 @@ services:
     security_opt:
       - seccomp:unconfined
     environment:
-      - CUSTOM_USER=kullanici_adi
-      - PASSWORD=sifre
+      - CUSTOM_USER=$CUSTOM_USER
+      - PASSWORD=$PASSWORD
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Istanbul
@@ -64,7 +62,7 @@ services:
 EOL
 
 echo ">>> Docker konteyner başlatılıyor..."
-docker-compose up -d
+docker-compose -f $HOME/chromium/docker-compose.yaml up -d
 docker exec -it chromium bash -c "
   apt-get update && apt-get install -y python3-pip python3-xdg
 "

@@ -39,6 +39,17 @@ sudo ./setup_vps.sh
 
 ---
 
+## Chromium'a Erişim
+
+Docker konteynerinde çalışan Chromium'a erişim sağlamak için varsayılan kullanıcı adı ve şifre şunlardır:
+
+- **Kullanıcı Adı:** admin
+- **Şifre:** admin
+
+Bu bilgileri Docker Compose dosyasında `CUSTOM_USER` ve `PASSWORD` değişkenlerini düzenleyerek değiştirebilirsiniz.
+
+---
+
 ## Performans Testlerini Kontrol Edin
 
 Kurulum tamamlandıktan sonra şu komutlarla test sonuçlarını inceleyebilirsiniz:
