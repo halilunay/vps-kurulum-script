@@ -1,7 +1,9 @@
 
 # VPS Kurulum Scripti
 
-Bu script, bir VPS sunucusunun otomatik olarak yapılandırılması ve Chromium tarayıcısının Docker üzerinde çalıştırılması için tasarlanmıştır.
+Bu script, bir VPS sunucusunun otomatik olarak yapılandırılması ve Chromium tarayıcısının Docker üzerinde çalıştırılması için tasarlanmıştır. Kullanımı kolaylaştırmak için tüm adımlar detaylı bir şekilde açıklanmıştır.
+
+---
 
 ## Script'in İçerikleri:
 - **10 GB Swap alanı oluşturulması**
@@ -31,12 +33,6 @@ chmod +x setup_vps.sh
 sudo ./setup_vps.sh
 ```
 
-### 4. Kurulum sırasında ne olacak?
-- **Swap Alanı:** 10 GB swap alanı oluşturulacak.
-- **Docker ve Docker Compose:** Gerekli bileşenler kurulacak.
-- **Chromium Docker'da Çalıştırılacak:** Tarayıcı otomatik olarak Docker'da başlatılacak.
-- **Performans Testleri:** RAM, disk ve internet hız testleri yapılacak.
-
 ---
 
 ## Chromium'a Erişim
@@ -46,7 +42,41 @@ Docker konteynerinde çalışan Chromium'a erişim sağlamak için varsayılan k
 - **Kullanıcı Adı:** admin
 - **Şifre:** admin
 
-Bu bilgileri Docker Compose dosyasında `CUSTOM_USER` ve `PASSWORD` değişkenlerini düzenleyerek değiştirebilirsiniz.
+---
+
+### Chromium Kullanıcı Adı ve Şifreyi Değiştirme
+
+Eğer varsayılan kullanıcı adı ve şifreyi değiştirmek isterseniz, aşağıdaki adımları takip edin:
+
+#### 1. Docker Compose Dosyasını Düzenleyin
+```bash
+nano ~/chromium/docker-compose.yaml
+```
+
+#### 2. Kullanıcı Adı ve Şifreyi Değiştirin
+Aşağıdaki satırları bulun ve `admin` yerine kendi kullanıcı adı ve şifrenizi yazın:
+```yaml
+    environment:
+      - CUSTOM_USER=admin
+      - PASSWORD=admin
+```
+Yeni hali:
+```yaml
+    environment:
+      - CUSTOM_USER=yenikullanici
+      - PASSWORD=yenişifre
+```
+
+#### 3. Değişiklikleri Kaydedin ve Çıkın
+- **CTRL+O**: Kaydet
+- **Enter**: Değişiklikleri onayla
+- **CTRL+X**: Nano editöründen çıkın.
+
+#### 4. Docker Konteynerini Yeniden Başlatın
+```bash
+docker-compose -f ~/chromium/docker-compose.yaml down
+docker-compose -f ~/chromium/docker-compose.yaml up -d
+```
 
 ---
 
