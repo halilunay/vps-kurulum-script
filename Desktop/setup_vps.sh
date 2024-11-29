@@ -1,40 +1,41 @@
 
 #!/bin/bash
 
-# Varsayılan Kullanıcı Adı ve Şifre
-CUSTOM_USER=${CUSTOM_USER:-admin}
-PASSWORD=${PASSWORD:-admin}
+# Renkli çıktılar için değişkenler
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
 
-# Swap Alanı Oluşturma
-echo ">>> Swap alanı oluşturuluyor (10 GB)..."
+echo -e "${GREEN}>>> Swap alanı oluşturuluyor (10 GB)...${NC}"
 sudo dd if=/dev/zero of=/swapfile bs=1M count=10240 status=progress
 sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 sudo swapon /swapfile
 echo "/swapfile swap swap defaults 0 0" | sudo tee -a /etc/fstab
-echo ">>> Swap alanı oluşturma tamamlandı."
+echo -e "${GREEN}>>> Swap alanı başarıyla oluşturuldu.${NC}"
 
-# Sistem Güncellemeleri
-echo ">>> Sistem güncelleniyor..."
+echo -e "${GREEN}>>> Sistem güncelleniyor...${NC}"
 sudo apt-get update && sudo apt-get upgrade -y
-echo ">>> Sistem güncellemesi tamamlandı."
+echo -e "${GREEN}>>> Sistem güncellemesi tamamlandı.${NC}"
 
-# Docker ve Gerekli Bağımlılıkların Kurulumu
-echo ">>> Docker ve bağımlılıklar kuruluyor..."
+echo -e "${GREEN}>>> Docker ve bağımlılıklar kuruluyor...${NC}"
 sudo apt-get install -y ca-certificates curl gnupg lsb-release
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-echo ">>> Docker kurulumu tamamlandı."
+echo -e "${GREEN}>>> Docker kurulumu tamamlandı.${NC}"
 
-# Docker Compose Kurulumu
-echo ">>> Docker Compose kuruluyor..."
+echo -e "${GREEN}>>> Docker Compose kuruluyor...${NC}"
 sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
-echo ">>> Docker Compose başarıyla kuruldu."
+echo -e "${GREEN}>>> Docker Compose başarıyla kuruldu.${NC}"
 
-# Chromium için Docker Konteynerinin Kurulumu
-echo ">>> Chromium için Docker konteyner kuruluyor..."
+# Sunucu saat dilimini öğrenme ve docker-compose.yaml'da kullanma
+echo -e "${GREEN}>>> Sunucu saat dilimi kontrol ediliyor...${NC}"
+TIMEZONE=$(timedatectl | grep "Time zone" | awk '{print $3}')
+echo -e "${GREEN}Sunucu saat dilimi: $TIMEZONE${NC}"
+
+echo -e "${GREEN}>>> Chromium için Docker Compose dosyası oluşturuluyor...${NC}"
 mkdir -p $HOME/chromium
 cat <<EOL > $HOME/chromium/docker-compose.yaml
 services:
@@ -44,11 +45,11 @@ services:
     security_opt:
       - seccomp:unconfined
     environment:
-      - CUSTOM_USER=$CUSTOM_USER
-      - PASSWORD=$PASSWORD
+      - CUSTOM_USER=admin
+      - PASSWORD=admin
       - PUID=1000
       - PGID=1000
-      - TZ=Europe/Istanbul
+      - TZ=$TIMEZONE
       - LANG=tr_TR.UTF-8
       - CHROME_CLI=https://google.com/
       - CHROME_FLAGS=--disable-gpu
@@ -60,30 +61,29 @@ services:
     shm_size: "1gb"
     restart: unless-stopped
 EOL
+echo -e "${GREEN}>>> Docker Compose dosyası başarıyla oluşturuldu.${NC}"
 
-echo ">>> Docker konteyner başlatılıyor..."
+echo -e "${GREEN}>>> Chromium başlatılıyor...${NC}"
 docker-compose -f $HOME/chromium/docker-compose.yaml up -d
 docker exec -it chromium bash -c "
   apt-get update && apt-get install -y python3-pip python3-xdg
 "
 docker-compose down
 docker-compose up -d
-echo ">>> Chromium kurulumu tamamlandı ve çalıştırıldı."
+echo -e "${GREEN}>>> Chromium başarıyla çalıştırıldı.${NC}"
 
-# İzleme ve Performans Araçları Kurulumu
-echo ">>> İzleme ve performans araçları kuruluyor..."
+echo -e "${GREEN}>>> İzleme ve performans araçları kuruluyor...${NC}"
 sudo apt-get install -y bpytop hdparm sysbench
-echo ">>> İzleme ve performans araçları kuruldu."
+echo -e "${GREEN}>>> İzleme ve performans araçları kuruldu.${NC}"
 
-# Performans Testleri
-echo ">>> Performans testleri başlatılıyor..."
+echo -e "${GREEN}>>> Performans testleri başlatılıyor...${NC}"
 sudo apt-get install -y speedtest-cli
 speedtest-cli > speedtest.txt
 sysbench memory --memory-block-size=1M --memory-total-size=4G run > ram_benchmark.txt
 hdparm -Tt /dev/sda > disk_benchmark.txt
-echo ">>> Performans testleri tamamlandı. Sonuçlar:"
+echo -e "${GREEN}>>> Performans testleri tamamlandı. Sonuçlar:${NC}"
 cat speedtest.txt
 cat ram_benchmark.txt
 cat disk_benchmark.txt
 
-echo ">>> Tüm işlemler başarıyla tamamlandı!"
+echo -e "${GREEN}>>> Tüm işlemler başarıyla tamamlandı!${NC}"
