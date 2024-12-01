@@ -34,9 +34,9 @@ sudo bash manager.sh up
 # Retrieve the node key
 NODE_KEY=$(sudo bash manager.sh key)
 if [ $? -eq 0 ]; then
+    SERVER_IP=$(curl -4 -s ifconfig.me)
     echo -e "${GREEN}>>> Anahtarınız başarıyla oluşturuldu!${NC}"
     echo -e "${YELLOW}>>> Anahtarınızı aşağıdaki adreste kullanabilirsiniz:${NC}"
-    SERVER_IP=$(curl -s ifconfig.me)
     echo -e "${YELLOW}https://account.network3.ai/main?o=${SERVER_IP}:8080${NC}"
     echo -e "${GREEN}>>> Network3 node kurulumu tamamlandı.${NC}"
 else
