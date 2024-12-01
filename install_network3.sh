@@ -27,11 +27,9 @@ fi
 cd network3
 
 # Start the Network3 node manager
-sudo apt-get install -y net-tools
-/sbin/ifconfig eth0 up
 sudo bash manager.sh up
 
-# Retrieve the node key
+# Retrieve the node key and ensure IPv4 is used
 NODE_KEY=$(sudo bash manager.sh key)
 if [ $? -eq 0 ]; then
     SERVER_IP=$(curl -4 -s ifconfig.me)
