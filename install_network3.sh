@@ -10,10 +10,14 @@ echo -e "${GREEN}>>> Network3 node kurulumu başlıyor...${NC}"
 
 # Update and install dependencies
 sudo apt update && sudo apt install -y wireguard net-tools
+/sbin/ifconfig eth0 up
 
 # Download and extract the Network3 node files
 wget https://network3.io/ubuntu-node-v2.1.0.tar -O network3-v2.1.0.tar
-tar -xf network3-v2.1.0.tar
+mkdir -p network3
+tar -xf network3-v2.1.0.tar -C network3
+
+# Navigate to the network3 directory
 cd network3
 
 # Start the Network3 node manager

@@ -16,105 +16,53 @@ Bu repoda, bir VPS üzerinde çeşitli işlemleri otomatik olarak gerçekleştir
 
 ## Kullanım Rehberi
 
-### 1. VPS Hazırlık Scripti (setup_vps.sh)
+### Network3 Node Kurulumu
 
-#### 1. Script'i indirin:
-```bash
-wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/setup_vps.sh
-```
-#### 2. Script'i çalıştırılabilir hale getirin:
-```bash
-chmod +x setup_vps.sh
-```
-#### 3. Script'i çalıştırın:
-```bash
-sudo ./setup_vps.sh
-```
-
-#### 4. Varsayılan Kullanıcı Adı ve Şifreyi Değiştirme (Chromium)
-
-1. Chromium yapılandırma dosyasını düzenleyin:
+1. Script'i indirin:
    ```bash
-   nano ~/chromium/docker-compose.yaml
-   ```
-2. `environment` kısmında aşağıdaki satırları bulun ve istediğiniz kullanıcı adı ve şifreyi belirleyin:
-   ```yaml
-   environment:
-     - CUSTOM_USER=admin
-     - PASSWORD=admin
-   ```
-   Örneğin:
-   ```yaml
-   environment:
-     - CUSTOM_USER=kullaniciadi
-     - PASSWORD=guclu_sifre
+   wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/install_network3.sh
    ```
 
-3. Değişiklikleri kaydedin ve çıkın (`CTRL+O`, `ENTER`, `CTRL+X`).
-
-4. Chromium'u yeniden başlatın:
+2. Script'i çalıştırılabilir hale getirin:
    ```bash
-   docker-compose -f ~/chromium/docker-compose.yaml down
-   docker-compose -f ~/chromium/docker-compose.yaml up -d
+   chmod +x install_network3.sh
    ```
 
-5. Yeni kullanıcı adı ve şifre ile giriş yapabilirsiniz.
+3. Script'i çalıştırın:
+   ```bash
+   sudo ./install_network3.sh
+   ```
 
-### 2. Network3 Node Kurulum Scripti (install_network3.sh)
+4. Eğer `net-tools` eksikse veya `ifconfig` çalışmıyorsa, aşağıdaki komutları çalıştırın:
+   ```bash
+   sudo apt-get install net-tools
+   /sbin/ifconfig eth0 up
+   ```
 
-#### 1. Script'i indirin:
-```bash
-wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/install_network3.sh
-```
-#### 2. Script'i çalıştırılabilir hale getirin:
-```bash
-chmod +x install_network3.sh
-```
-#### 3. Script'i çalıştırın:
-```bash
-sudo ./install_network3.sh
-```
+5. Kurulum tamamlandıktan sonra, oluşturulan anahtarınızı kullanmak için şu adrese gidin:
+   ```
+   https://account.network3.ai/main?o=SUNUCU_IP:8080
+   ```
+   **+** butonuna tıklayın ve oluşturulan key'i ekleyin.
 
-#### 4. Node'un çalıştığını kontrol edin:
-```bash
-sudo bash ~/network3/manager.sh status
-```
+---
 
-### 3. Multiple Node Kurulum Scripti (install_multiple.sh)
+## Node'u Kapatma veya Silme
 
-#### 1. Script'i indirin:
-```bash
-wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/install_multiple.sh
-```
-#### 2. Script'i çalıştırılabilir hale getirin:
-```bash
-chmod +x install_multiple.sh
-```
-#### 3. Script'i çalıştırın:
-```bash
-sudo ./install_multiple.sh
-```
-#### 4. Node'un çalıştığını kontrol edin:
-```bash
-multiple-cli status
-```
+1. Network3 dizinine geçin:
+   ```bash
+   cd network3
+   ```
 
-### 4. VPS Kaldırma Scripti (remove_vps.sh)
+2. Node'u kapatın:
+   ```bash
+   sudo bash manager.sh down
+   ```
 
-#### 1. Script'i indirin:
-```bash
-wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/remove_vps.sh
-```
-
-#### 2. Script'i çalıştırılabilir hale getirin:
-```bash
-chmod +x remove_vps.sh
-```
-
-#### 3. Kaldırma işlemini başlatın:
-```bash
-sudo ./remove_vps.sh
-```
+3. Network3 dizinini kaldırın:
+   ```bash
+   rm -rf network3
+   ```
 
 ---
 
@@ -131,16 +79,6 @@ Multiple kurulumu tamamlandıktan sonra aşağıdaki projelere göz atabilirsini
 - **Blockmesh**: [Kayıt Linki](https://app.blockmesh.xyz/register?invite_code=e5e83bbe-8c0c-4817-81b9-9f84f4ea9e62)
 - **Dawn**: Referral Code: bcwzlhxc
 - **Teneo**: Referral Code: uowoj
-- **Functor**: [Kayıt Linki](https://node.securitylabs.xyz/?from=extension&type=signin&referralCode=cm34uttd02174mo1br359bgp3)
-- **Toggle**: [Kayıt Linki](https://toggle.pro/sign-up/b15c57ba-6f4b-4f16-abb6-a9073dbdff69)
-- **Pipe**: [Kayıt Linki](https://pipecdn.app/signup?ref=aGxsdW5heU)
-- **Kaisar**: [Kayıt Linki](https://zero.kaisar.io/register?ref=fSDtHC012)
-- **DataQuest**: [Kayıt Linki](https://dataquest.nvg8.io//signup?ref=272459)
-- **Kleo**: [Kayıt Linki](https://chromewebstore.google.com/detail/kleo-network/jimpblheogbjfgajkccdoehjfadmimoo?refAddress=0x95A809E771E40fBa5b442B7850dcAFe04425dDaD)
-- **AlphaOS**: [Kayıt Linki](https://alphaos.net/point?invite=Q0FD2Y)
-- **Threat Slayer**: [Kayıt Linki](https://threatslayer.interlock.network/register?referral_code=oYJo2dqtlRNp3jTV)
-- **Gaea**: [Kayıt Linki](https://app.aigaea.net/register?ref=gayXVNm9Jbpk5q)
-- **Meshchain**: [Kayıt Linki](https://app.meshchain.ai?ref=F2AS3MHE7TR2)
 
 OpenLayer ve Blockcast projelerinin indirme bağlantıları henüz mevcut değildir, bağlantılar oluşturulduğunda README.md dosyasına eklenecektir.
 
