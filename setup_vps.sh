@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # Renkli çıktılar için değişkenler
@@ -30,11 +29,6 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 echo -e "${GREEN}>>> Docker Compose başarıyla kuruldu.${NC}"
 
-# Sunucu saat dilimini öğrenme ve docker-compose.yaml'da kullanma
-echo -e "${GREEN}>>> Sunucu saat dilimi kontrol ediliyor...${NC}"
-TIMEZONE=$(timedatectl | grep "Time zone" | awk '{print $3}')
-echo -e "${GREEN}Sunucu saat dilimi: $TIMEZONE${NC}"
-
 echo -e "${GREEN}>>> Chromium için Docker Compose dosyası oluşturuluyor...${NC}"
 mkdir -p $HOME/chromium
 cat <<EOL > $HOME/chromium/docker-compose.yaml
@@ -49,7 +43,7 @@ services:
       - PASSWORD=admin
       - PUID=1000
       - PGID=1000
-      - TZ=$TIMEZONE
+      - TZ=$(timedatectl | grep "Time zone" | awk '{print $3}')
       - LANG=tr_TR.UTF-8
       - CHROME_CLI=https://google.com/
       - CHROME_FLAGS=--disable-gpu
@@ -65,11 +59,6 @@ echo -e "${GREEN}>>> Docker Compose dosyası başarıyla oluşturuldu.${NC}"
 
 echo -e "${GREEN}>>> Chromium başlatılıyor...${NC}"
 docker-compose -f $HOME/chromium/docker-compose.yaml up -d
-docker exec -it chromium bash -c "
-  apt-get update && apt-get install -y python3-pip python3-xdg
-"
-docker-compose down
-docker-compose up -d
 echo -e "${GREEN}>>> Chromium başarıyla çalıştırıldı.${NC}"
 
 echo -e "${GREEN}>>> İzleme ve performans araçları kuruluyor...${NC}"
@@ -80,10 +69,13 @@ echo -e "${GREEN}>>> Performans testleri başlatılıyor...${NC}"
 sudo apt-get install -y speedtest-cli
 speedtest-cli > speedtest.txt
 sysbench memory --memory-block-size=1M --memory-total-size=4G run > ram_benchmark.txt
-hdparm -Tt /dev/sda > disk_benchmark.txt
+hdparm -Tt /dev/vda > disk_benchmark.txt
 echo -e "${GREEN}>>> Performans testleri tamamlandı. Sonuçlar:${NC}"
 cat speedtest.txt
 cat ram_benchmark.txt
 cat disk_benchmark.txt
+
+# Günlük önbellek temizleme işlemi için cron job ekleniyor
+(crontab -l 2>/dev/null; echo "0 0 * * * rm -rf /root/.cache/*") | crontab -
 
 echo -e "${GREEN}>>> Tüm işlemler başarıyla tamamlandı!${NC}"
