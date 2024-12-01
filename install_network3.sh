@@ -17,9 +17,11 @@ wget https://network3.io/ubuntu-node-v2.1.0.tar -O network3-v2.1.0.tar
 mkdir -p network3
 tar -xf network3-v2.1.0.tar -C network3
 
-# Move files to the correct directory
-mv network3/ubuntu-node/* network3/
-rm -rf network3/ubuntu-node
+# Check if "ubuntu-node" directory exists inside "network3" and fix the structure
+if [ -d "network3/ubuntu-node" ]; then
+    mv network3/ubuntu-node/* network3/
+    rm -rf network3/ubuntu-node
+fi
 
 # Navigate to the network3 directory
 cd network3
