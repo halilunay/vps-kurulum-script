@@ -1,136 +1,128 @@
 
-# VPS Kurulum Scripti
+# VPS Kurulum Scriptleri
 
-Bu script, bir VPS sunucusunun otomatik olarak yapılandırılması ve Chromium tarayıcısının Docker üzerinde çalıştırılması için tasarlanmıştır. Kullanımı kolaylaştırmak için tüm adımlar detaylı bir şekilde açıklanmıştır.
-
----
-
-## Script'in İçerikleri:
-- **10 GB Swap alanı oluşturulması**
-- **Sistem güncellemelerinin yapılması**
-- **Docker ve Docker Compose kurulumu**
-- **Chromium'un Docker üzerinde çalıştırılması**
-- **İzleme ve performans araçlarının yüklenmesi (bpytop, hdparm, sysbench)**
-- **RAM, Disk ve İnternet hız testleri**
+Bu repoda, bir VPS üzerinde çeşitli işlemleri otomatik olarak gerçekleştiren scriptler bulunmaktadır. Kullanıcıların her adımı takip ederek kolayca kurulum yapabilmesi için detaylı rehberler eklenmiştir.
 
 ---
 
-## Kullanım
+## İçerikler
 
-### 1. Script'i indirin:
-Aşağıdaki komutla script'i VPS sunucunuza indirin:
+1. **VPS Hazırlık Scripti (setup_vps.sh)**: VPS için gerekli temel yapılandırma ve Chromium kurulumunu içerir.
+2. **Network3 Node Kurulum Scripti (install_network3.sh)**: Network3 node'unu kolayca kurar.
+3. **Multiple Node Kurulum Scripti (install_multiple.sh)**: Multiple node'unu kurar ve yapılandırır.
+
+---
+
+## Kullanım Rehberi
+
+### 1. VPS Hazırlık Scripti (setup_vps.sh)
+
+#### 1. Script'i indirin:
 ```bash
 wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/setup_vps.sh
 ```
-
-### 2. Script'i çalıştırılabilir hale getirin:
+#### 2. Script'i çalıştırılabilir hale getirin:
 ```bash
 chmod +x setup_vps.sh
 ```
-
-### 3. Script'i çalıştırın:
+#### 3. Script'i çalıştırın:
 ```bash
 sudo ./setup_vps.sh
 ```
 
----
-
-## Chromium'a Erişim
-
-Docker konteynerinde çalışan Chromium'a erişim sağlamak için varsayılan kullanıcı adı ve şifre şunlardır:
-
-- **Kullanıcı Adı:** admin
-- **Şifre:** admin
-
----
-
-### Chromium Kullanıcı Adı ve Şifreyi Değiştirme
-
-Eğer varsayılan kullanıcı adı ve şifreyi değiştirmek isterseniz, aşağıdaki adımları takip edin:
-
-#### 1. Docker Compose Dosyasını Düzenleyin
+#### 4. VPS Hazırlık Scriptini kaldırma:
 ```bash
-nano ~/chromium/docker-compose.yaml
+sudo systemctl stop docker
+sudo apt-get purge -y docker-ce docker-ce-cli containerd.io
+sudo rm -rf /var/lib/docker
+sudo rm -rf /var/lib/containerd
+sudo rm -f /usr/local/bin/docker-compose
+sudo rm -rf ~/chromium
+sudo swapoff /swapfile
+sudo rm -f /swapfile
+sudo sed -i '/\/swapfile/d' /etc/fstab
+sudo apt-get purge -y bpytop hdparm sysbench speedtest-cli
+sudo apt-get autoremove -y
+sudo apt-get clean
+sudo apt-get autoremove --purge -y
 ```
 
-#### 2. Kullanıcı Adı ve Şifreyi Değiştirin
-Aşağıdaki satırları bulun ve `admin` yerine kendi kullanıcı adı ve şifrenizi yazın:
-```yaml
-    environment:
-      - CUSTOM_USER=admin
-      - PASSWORD=admin
-```
-Yeni hali:
-```yaml
-    environment:
-      - CUSTOM_USER=yenikullanici
-      - PASSWORD=yenişifre
-```
+### 2. Network3 Node Kurulum Scripti (install_network3.sh)
 
-#### 3. Değişiklikleri Kaydedin ve Çıkın
-- **CTRL+O**: Kaydet
-- **Enter**: Değişiklikleri onayla
-- **CTRL+X**: Nano editöründen çıkın.
-
-#### 4. Docker Konteynerini Yeniden Başlatın
+#### 1. Script'i indirin:
 ```bash
-docker-compose -f ~/chromium/docker-compose.yaml down
-docker-compose -f ~/chromium/docker-compose.yaml up -d
+wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/install_network3.sh
+```
+#### 2. Script'i çalıştırılabilir hale getirin:
+```bash
+chmod +x install_network3.sh
+```
+#### 3. Script'i çalıştırın:
+```bash
+sudo ./install_network3.sh
+```
+#### 4. Node'un çalıştığını kontrol edin:
+```bash
+sudo bash ~/network3/manager.sh status
+```
+#### 5. Node'u kaldırma:
+```bash
+sudo bash ~/network3/manager.sh down
+rm -rf ~/network3
+```
+
+### 3. Multiple Node Kurulum Scripti (install_multiple.sh)
+
+#### 1. Script'i indirin:
+```bash
+wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/install_multiple.sh
+```
+#### 2. Script'i çalıştırılabilir hale getirin:
+```bash
+chmod +x install_multiple.sh
+```
+#### 3. Script'i çalıştırın:
+```bash
+sudo ./install_multiple.sh
+```
+#### 4. Node'un çalıştığını kontrol edin:
+```bash
+multiple-cli status
+```
+#### 5. Node'u kaldırma:
+```bash
+sudo rm -rf ~/multipleforlinux
 ```
 
 ---
 
-## Performans Testlerini Kontrol Edin
+## Ek Bilgi
 
-Kurulum tamamlandıktan sonra şu komutlarla test sonuçlarını inceleyebilirsiniz:
+Multiple kurulumu tamamlandıktan sonra aşağıdaki projelere göz atabilirsiniz:
 
-- **İnternet Hız Testi:**
-  ```bash
-  cat speedtest.txt
-  ```
+- **Grass**: [Kayıt Linki](https://app.getgrass.io/register/?referralCode=OvrLV9QgyWJRoHt)
+- **Nodepay**: [Kayıt Linki](https://app.nodepay.ai/register?ref=TfxCSlIHPEuHVi7)
+- **Network3**: [Kayıt Linki](https://account.network3.ai/register_page?rc=644903e7)
+- **Gradient**: [Kayıt Linki](https://app.gradient.network/signup?code=ZOCFP7)
+- **Bless**: [Kayıt Linki](https://bless.network/dashboard?ref=5ORSGD)
+- **Oasis**: [Kayıt Linki](https://r.oasis.ai/halilunay)
+- **Blockmesh**: [Kayıt Linki](https://app.blockmesh.xyz/register?invite_code=e5e83bbe-8c0c-4817-81b9-9f84f4ea9e62)
+- **Dawn**: Referral Code: bcwzlhxc
+- **Teneo**: Referral Code: uowoj
+- **Functor**: [Kayıt Linki](https://node.securitylabs.xyz/?from=extension&type=signin&referralCode=cm34uttd02174mo1br359bgp3)
+- **Toggle**: [Kayıt Linki](https://toggle.pro/sign-up/b15c57ba-6f4b-4f16-abb6-a9073dbdff69)
+- **Pipe**: [Kayıt Linki](https://pipecdn.app/signup?ref=aGxsdW5heU)
+- **Kaisar**: [Kayıt Linki](https://zero.kaisar.io/register?ref=fSDtHC012)
+- **DataQuest**: [Kayıt Linki](https://dataquest.nvg8.io//signup?ref=272459)
+- **Kleo**: [Kayıt Linki](https://chromewebstore.google.com/detail/kleo-network/jimpblheogbjfgajkccdoehjfadmimoo?refAddress=0x95A809E771E40fBa5b442B7850dcAFe04425dDaD)
+- **AlphaOS**: [Kayıt Linki](https://alphaos.net/point?invite=Q0FD2Y)
+- **Threat Slayer**: [Kayıt Linki](https://threatslayer.interlock.network/register?referral_code=oYJo2dqtlRNp3jTV)
+- **Gaea**: [Kayıt Linki](https://app.aigaea.net/register?ref=gayXVNm9Jbpk5q)
+- **Meshchain**: [Kayıt Linki](https://app.meshchain.ai?ref=F2AS3MHE7TR2)
 
-- **RAM Performans Testi:**
-  ```bash
-  cat ram_benchmark.txt
-  ```
-
-- **Disk Performans Testi:**
-  ```bash
-  cat disk_benchmark.txt
-  ```
-
----
-
-## Sık Karşılaşılan Sorunlar ve Çözümler
-
-### 1. İzin hatası alıyorum.
-Kurulum sırasında `Permission Denied` hatası alırsanız:
-```bash
-chmod +x setup_vps.sh
-```
-
-### 2. Script yarıda kesildi.
-Kurulum sırasında bir hata alırsanız:
-```bash
-sudo ./setup_vps.sh
-```
-
-### 3. Docker çalışmıyor.
-Docker'ın çalışıp çalışmadığını kontrol etmek için:
-```bash
-docker ps
-```
+OpenLayer ve Blockcast projelerinin indirme bağlantıları henüz mevcut değildir, bağlantılar oluşturulduğunda README.md dosyasına eklenecektir.
 
 ---
 
-## Katkıda Bulunun
-
-Bu script'i geliştirmek için katkıda bulunabilirsiniz:
-- [Issue oluştur](https://github.com/halilunay/vps-kurulum-script/issues)
-- Pull Request gönderin.
-
----
-
-## Lisans
-
-Bu proje [MIT Lisansı](LICENSE) ile lisanslanmıştır.
+Lisans
+Bu proje MIT Lisansı ile lisanslanmıştır.
