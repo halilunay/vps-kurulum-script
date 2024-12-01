@@ -31,6 +31,35 @@ chmod +x setup_vps.sh
 sudo ./setup_vps.sh
 ```
 
+#### 4. Varsayılan Kullanıcı Adı ve Şifreyi Değiştirme (Chromium)
+
+1. Chromium yapılandırma dosyasını düzenleyin:
+   ```bash
+   nano ~/chromium/docker-compose.yaml
+   ```
+2. `environment` kısmında aşağıdaki satırları bulun ve istediğiniz kullanıcı adı ve şifreyi belirleyin:
+   ```yaml
+   environment:
+     - CUSTOM_USER=admin
+     - PASSWORD=admin
+   ```
+   Örneğin:
+   ```yaml
+   environment:
+     - CUSTOM_USER=kullaniciadi
+     - PASSWORD=guclu_sifre
+   ```
+
+3. Değişiklikleri kaydedin ve çıkın (`CTRL+O`, `ENTER`, `CTRL+X`).
+
+4. Chromium'u yeniden başlatın:
+   ```bash
+   docker-compose -f ~/chromium/docker-compose.yaml down
+   docker-compose -f ~/chromium/docker-compose.yaml up -d
+   ```
+
+5. Yeni kullanıcı adı ve şifre ile giriş yapabilirsiniz.
+
 ### 2. Network3 Node Kurulum Scripti (install_network3.sh)
 
 #### 1. Script'i indirin:
@@ -45,6 +74,7 @@ chmod +x install_network3.sh
 ```bash
 sudo ./install_network3.sh
 ```
+
 #### 4. Node'un çalıştığını kontrol edin:
 ```bash
 sudo bash ~/network3/manager.sh status

@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 GREEN='\033[0;32m'
@@ -11,9 +12,9 @@ echo -e "${GREEN}>>> Network3 node kurulumu başlıyor...${NC}"
 sudo apt update && sudo apt install -y wireguard net-tools
 
 # Download and extract the Network3 node files
-wget https://network3.io/ubuntu-node-v2.1.0.tar -O ubuntu-node-v2.1.0.tar
-tar -xf ubuntu-node-v2.1.0.tar
-cd ubuntu-node
+wget https://network3.io/ubuntu-node-v2.1.0.tar -O network3-v2.1.0.tar
+tar -xf network3-v2.1.0.tar
+cd network3
 
 # Start the Network3 node manager
 sudo bash manager.sh up
