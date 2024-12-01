@@ -10,6 +10,7 @@ Bu repoda, bir VPS üzerinde çeşitli işlemleri otomatik olarak gerçekleştir
 1. **VPS Hazırlık Scripti (setup_vps.sh)**: VPS için gerekli temel yapılandırma ve Chromium kurulumunu içerir.
 2. **Network3 Node Kurulum Scripti (install_network3.sh)**: Network3 node'unu kolayca kurar.
 3. **Multiple Node Kurulum Scripti (install_multiple.sh)**: Multiple node'unu kurar ve yapılandırır.
+4. **VPS Kaldırma Scripti (remove_vps.sh)**: VPS üzerindeki tüm yapılandırmayı kaldırır.
 
 ---
 
@@ -30,23 +31,6 @@ chmod +x setup_vps.sh
 sudo ./setup_vps.sh
 ```
 
-#### 4. VPS Hazırlık Scriptini kaldırma:
-```bash
-sudo systemctl stop docker
-sudo apt-get purge -y docker-ce docker-ce-cli containerd.io
-sudo rm -rf /var/lib/docker
-sudo rm -rf /var/lib/containerd
-sudo rm -f /usr/local/bin/docker-compose
-sudo rm -rf ~/chromium
-sudo swapoff /swapfile
-sudo rm -f /swapfile
-sudo sed -i '/\/swapfile/d' /etc/fstab
-sudo apt-get purge -y bpytop hdparm sysbench speedtest-cli
-sudo apt-get autoremove -y
-sudo apt-get clean
-sudo apt-get autoremove --purge -y
-```
-
 ### 2. Network3 Node Kurulum Scripti (install_network3.sh)
 
 #### 1. Script'i indirin:
@@ -64,11 +48,6 @@ sudo ./install_network3.sh
 #### 4. Node'un çalıştığını kontrol edin:
 ```bash
 sudo bash ~/network3/manager.sh status
-```
-#### 5. Node'u kaldırma:
-```bash
-sudo bash ~/network3/manager.sh down
-rm -rf ~/network3
 ```
 
 ### 3. Multiple Node Kurulum Scripti (install_multiple.sh)
@@ -89,9 +68,22 @@ sudo ./install_multiple.sh
 ```bash
 multiple-cli status
 ```
-#### 5. Node'u kaldırma:
+
+### 4. VPS Kaldırma Scripti (remove_vps.sh)
+
+#### 1. Script'i indirin:
 ```bash
-sudo rm -rf ~/multipleforlinux
+wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/remove_vps.sh
+```
+
+#### 2. Script'i çalıştırılabilir hale getirin:
+```bash
+chmod +x remove_vps.sh
+```
+
+#### 3. Kaldırma işlemini başlatın:
+```bash
+sudo ./remove_vps.sh
 ```
 
 ---
