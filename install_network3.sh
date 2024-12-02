@@ -29,7 +29,7 @@ cd network3
 sudo bash manager.sh up
 
 # Retrieve the node key and ensure IPv4 is used
-NODE_KEY=$(sudo bash manager.sh key)
+NODE_KEY=$(sudo bash manager.sh key | grep -E '^[A-Za-z0-9+/=]+$')
 if [ $? -eq 0 ]; then
     SERVER_IP=$(curl -4 -s ifconfig.me)
     echo -e "${GREEN}>>> Anahtarınız başarıyla oluşturuldu!${NC}"
