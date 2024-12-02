@@ -1,7 +1,6 @@
 
 # VPS Kurulum Scripti
 
-
 ## İçindekiler
 
 1. [Genel Bilgilendirme](#genel-bilgilendirme)
@@ -25,59 +24,33 @@ Bu rehber, VPS üzerinde çalıştırılabilecek scriptlerin her biri için kuru
 
 ### setup_vps.sh
 
-### Amaç
-VPS'inizi optimize etmek ve çeşitli araçları kurmak için aşağıdaki adımları gerçekleştirir:
+#### Amaç
+VPS'inizi optimize etmek ve gerekli araçları kurmak için tasarlanmıştır.
 
-#### Swap Alanı Oluşturma
-- 10 GB boyutunda bir swap alanı oluşturur ve sisteme tanıtarak otomatik olarak kullanıma alır.
+#### Kurulum
+1. Scripti indirin:
+    ```bash
+    wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/refs/heads/main/setup_vps.sh
+    ```
 
-#### Sistem Güncellemesi
-- Paket listelerini günceller ve mevcut paketleri en son sürümlerine yükseltir.
+2. Çalıştırılabilir hale getirin:
+    ```bash
+    chmod +x setup_vps.sh
+    ```
 
-#### Docker ve Bağımlılıklarının Kurulumu
-- Gerekli bağımlılıkları yükler.
-- Docker'ın resmi GPG anahtarını ekler ve Docker deposunu sisteme tanıtarak Docker Engine'i kurar.
+3. Scripti çalıştırın:
+    ```bash
+    ./setup_vps.sh
+    ```
 
-#### Docker Compose Kurulumu
-- Docker Compose'un belirtilen sürümünü indirir ve çalıştırılabilir hale getirir.
-
-#### Chromium için Docker Compose Yapılandırması
-- Kullanıcı adı ve şifresi varsayılan olarak **admin** olan bir Chromium servisi için Docker Compose dosyası oluşturur.
-- Bu servis, 3010 ve 3011 numaralı portlar üzerinden erişilebilir.
-
-#### Chromium Servisinin Başlatılması
-- Oluşturulan Docker Compose yapılandırmasını kullanarak Chromium servisini başlatır.
-
-#### İzleme ve Performans Araçlarının Kurulumu
-- `bpytop`, `hdparm`, `sysbench` ve `speedtest-cli` gibi sistem izleme ve performans test araçlarını yükler.
-
-#### Performans Testlerinin Gerçekleştirilmesi
-- İnternet hızı, bellek ve disk performansını test eder ve sonuçları şu dosyalara kaydeder:
-  - `speedtest.txt`
-  - `ram_benchmark.txt`
-  - `disk_benchmark.txt`
-
-#### Günlük Önbellek Temizleme için Cron Job Eklenmesi
-- Her gün saat 00:00'da `/root/.cache/` dizinindeki dosyaları temizlemek için bir cron job ekler.
-
----
-
-
-#### Kurulum:
-```bash
-wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/refs/heads/main/setup_vps.sh
-chmod +x setup_vps.sh
-./setup_vps.sh
-```
-
-### Önemli Not
+#### Önemli Not
 Bu script, VPS'inizi hızlı bir şekilde yapılandırmak ve gerekli araçları kurmak için tasarlanmıştır. **Ancak, özellikle varsayılan kullanıcı adı ve şifrelerin güvenlik riskleri oluşturabileceğini unutmayın.** Kurulum sonrasında aşağıdaki talimatlarla bu bilgileri değiştirmeniz önerilir:
 
 1. `docker-compose.yaml` dosyasını düzenleyin:
     ```bash
     nano docker-compose.yaml
     ```
-2. Dosyada kullanıcı adı ve şifreyi şu şekilde değiştirin:
+2. Dosyada kullanıcı adı ve şifrenizi yeniden belirleyip değiştirin:
     ```yaml
       - CUSTOM_USER=<yeni_kullanıcı_adı>
       - PASSWORD=<yeni_şifre>
@@ -85,58 +58,58 @@ Bu script, VPS'inizi hızlı bir şekilde yapılandırmak ve gerekli araçları 
 3. Dosyayı kaydedip çıkmak için `Ctrl+X`, ardından `Y` ve `Enter` tuşlarına basın.
 4. Chromium servisini yeniden başlatın:
     ```bash
-    cd $HOME/chromium
-    docker compose up -d
+    (cd $HOME/chromium && docker compose up-d)
     ```
 
-#### Sistem İzleme:
-Kurulum sonrası bpytop ile sisteminizi izleyebilirsiniz:
-```bash
-bpytop
-```
+#### Özellikler
+- **Swap Alanı:** 10 GB swap alanı oluşturur.
+- **Docker ve Bağımlılıklar:** Docker ve Docker Compose kurulumunu gerçekleştirir.
+- **Performans Araçları:** bpytop, hdparm, sysbench gibi sistem izleme ve test araçlarını yükler.
+- **Performans Testleri:** Disk, bellek ve internet hızını test ederek sonuçları dosyalara kaydeder.
+- **Cron Job:** Günlük önbelleği temizlemek için otomatik bir görev oluşturur.
 
 ---
 
 ### install_network3.sh
 
-#### Amaç:
+#### Amaç
 Network3 projesine katılmak için gereken tüm bileşenleri yükler.
 
-#### Kurulum:
+#### Kurulum
 ```bash
 wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/refs/heads/main/install_network3.sh
 chmod +x install_network3.sh
 ./install_network3.sh
 ```
 
-#### Kayıt Olma:
+#### Kayıt Olma
 [Network3 Kayıt Linki](https://account.network3.ai/register_page?rc=644903e7)
 
 ---
 
 ### install_multiple.sh
 
-#### Amaç:
+#### Amaç
 Multiple projesine katılmak için gereken bileşenleri yükler.
 
-#### Kurulum:
+#### Kurulum
 ```bash
 wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/refs/heads/main/install_multiple.sh
 chmod +x install_multiple.sh
 ./install_multiple.sh
 ```
 
-#### Kayıt Olma:
+#### Kayıt Olma
 [Multiple Kayıt Linki](https://www.app.multiple.cc/#/signup?inviteCode=F0435S5T)
 
 ---
 
 ### remove_vps.sh
 
-#### Amaç:
+#### Amaç
 Tüm projeleri kaldırır ve VPS’inizi sıfırlamanıza olanak tanır.
 
-#### Kaldırma İşlemi:
+#### Kaldırma İşlemi
 ```bash
 wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/refs/heads/main/remove_vps.sh
 chmod +x remove_vps.sh
@@ -175,22 +148,59 @@ chmod +x remove_vps.sh
 
 ## Yararlı Komutlar
 
-- **Günlükleri Temizleme**:
+### Docker Yönetimi
+- **Çalışan konteynerları listeleme**:
     ```bash
-    rm -rf /root/.cache/*
+    docker ps
+    ```
+- **Tüm konteynerları (çalışmayanlar dahil) listeleme**:
+    ```bash
+    docker ps -a
+    ```
+- **Bir konteyneri durdurma**:
+    ```bash
+    docker stop <container_id>
+    ```
+- **Bir konteyneri başlatma**:
+    ```bash
+    docker start <container_id>
+    ```
+- **Konteyner günlüklerini görüntüleme**:
+    ```bash
+    docker logs <container_id>
     ```
 
-- **Disk Alanını Kontrol Etme**:
+### Sistem Yönetimi
+- **Disk alanını kontrol etme**:
     ```bash
     df -h
     ```
-
-- **Sistem İzleme**:
-    Kurulum sonrası `bpytop` kullanabilirsiniz:
+- **Sistem kaynaklarını izleme**:
     ```bash
     bpytop
     ```
+- **Aktif bağlantıları kontrol etme**:
+    ```bash
+    netstat -tuln
+    ```
+- **Sistemde çalışan tüm süreçleri listeleme**:
+    ```bash
+    ps aux
+    ```
 
+### Performans ve Testler
+- **Disk okuma/yazma hızını test etme**:
+    ```bash
+    hdparm -Tt /dev/sda
+    ```
+- **Bellek testi yapma**:
+    ```bash
+    sysbench memory run
+    ```
+- **İnternet hızını test etme**:
+    ```bash
+    speedtest-cli
+    ```
 ---
 
 Herhangi bir sorun yaşarsanız, lütfen benimle iletişime geçin.
