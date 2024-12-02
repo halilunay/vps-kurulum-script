@@ -58,7 +58,7 @@ Bu script, VPS'inizi hızlı bir şekilde yapılandırmak ve gerekli araçları 
 3. Dosyayı kaydedip çıkmak için `Ctrl+X`, ardından `Y` ve `Enter` tuşlarına basın.
 4. Chromium servisini yeniden başlatın:
     ```bash
-    (cd $HOME/chromium && docker compose up-d)
+    (cd $HOME/chromium && docker compose up -d)
     ```
 
 #### Özellikler
