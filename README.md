@@ -48,7 +48,7 @@ Bu script, VPS'inizi hızlı bir şekilde yapılandırmak ve gerekli araçları 
 
 1. `docker-compose.yaml` dosyasını düzenleyin:
     ```bash
-    nano docker-compose.yaml
+    (cd $HOME/chromium && nano docker-compose.yaml)
     ```
 2. Dosyada kullanıcı adı ve şifrenizi yeniden belirleyip değiştirin:
     ```yaml
