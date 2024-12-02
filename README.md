@@ -16,53 +16,54 @@ Bu repoda, bir VPS üzerinde çeşitli işlemleri otomatik olarak gerçekleştir
 
 ## Kullanım Rehberi
 
-### Network3 Node Kurulumu
+### Multiple Node Kurulumu
 
 1. Script'i indirin:
    ```bash
-   wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/install_network3.sh
+   wget https://raw.githubusercontent.com/halilunay/vps-kurulum-script/main/install_multiple.sh
    ```
 
 2. Script'i çalıştırılabilir hale getirin:
    ```bash
-   chmod +x install_network3.sh
+   chmod +x install_multiple.sh
    ```
 
 3. Script'i çalıştırın:
    ```bash
-   sudo ./install_network3.sh
+   sudo ./install_multiple.sh
    ```
 
-4. Eğer `net-tools` eksikse veya `ifconfig` çalışmıyorsa, aşağıdaki komutları çalıştırın:
+4. Kurulum tamamlandıktan sonra, aşağıdaki adımları izleyin:
+
+   - **Node'u Arka Planda Başlatın**:
+     ```bash
+     nohup ./multiple-node > output.log 2>&1 &
+     ```
+
+   - **Hesabınızı Bağlayın**:
+     ```bash
+     multiple-cli bind --bandwidth-download 100 --identifier HESAP_ID --pin PIN --storage 200 --bandwidth-upload 100
+     ```
+     > **Not:** `HESAP_ID` ve `PIN` değerlerini kendi bilgilerinizle değiştirin.
+
+5. **Kontrollerinizi Yapın**:
    ```bash
-   sudo apt-get install net-tools
-   /sbin/ifconfig eth0 up
+   multiple-cli status
    ```
 
-5. Kurulum tamamlandıktan sonra, oluşturulan anahtarınızı kullanmak için şu adrese gidin:
-   ```
-   https://account.network3.ai/main?o=SUNUCU_IP:8080
-   ```
-   **+** butonuna tıklayın ve oluşturulan key'i ekleyin.
+6. **Bağlantı Detaylarınızı Doğrulayın**:
+   Script'in verdiği bağlantı veya bilgiler üzerinden hesabınızı kontrol edin.
 
 ---
 
 ## Node'u Kapatma veya Silme
 
-1. Network3 dizinine geçin:
+1. Multiple için oluşturulan yapılandırmayı kaldırmak için şu komutları çalıştırın:
    ```bash
-   cd network3
+   sudo rm -rf multiple
    ```
 
-2. Node'u kapatın:
-   ```bash
-   sudo bash manager.sh down
-   ```
-
-3. Network3 dizinini kaldırın:
-   ```bash
-   rm -rf network3
-   ```
+2. Ek bir temizleme işlemi gerekirse, VPS kaldırma scriptini kullanabilirsiniz.
 
 ---
 
@@ -84,5 +85,6 @@ OpenLayer ve Blockcast projelerinin indirme bağlantıları henüz mevcut değil
 
 ---
 
-Lisans
+## Lisans
+
 Bu proje MIT Lisansı ile lisanslanmıştır.
