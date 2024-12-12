@@ -6,31 +6,45 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 VERSION="v2.1.1" # Güncel versiyon numarası
+INSTALL_PATH="/root/network3" # Varsayılan kurulum yolu
 
-echo -e "${GREEN}>>> Network3 node kurulumu başlıyor...${NC}"
+echo -e "${GREEN}>>> Network3 node kurulumu/güncellemesi başlıyor...${NC}"
 
-# Update and install dependencies
-sudo apt update && sudo apt install -y wireguard net-tools
-/sbin/ifconfig eth0 up
+# Dosya yolunu otomatik bulma
+EXISTING_PATH=$(find / -type d -name "network3" 2>/dev/null | head -n 1)
 
-# Download and extract the Network3 node files
-wget https://network3.io/ubuntu-node-$VERSION.tar.gz -O network3-$VERSION.tar.gz
-mkdir -p network3
-tar -zxvf network3-$VERSION.tar.gz -C network3
-
-# Check if "ubuntu-node" directory exists inside "network3" and fix the structure
-if [ -d "network3/ubuntu-node" ]; then
-    mv network3/ubuntu-node/* network3/
-    rm -rf network3/ubuntu-node
+if [ -n "$EXISTING_PATH" ]; then
+    echo -e "${YELLOW}>>> Mevcut bir kurulum tespit edildi: ${EXISTING_PATH}${NC}"
+    INSTALL_PATH="$EXISTING_PATH"
+else
+    echo -e "${YELLOW}>>> Mevcut kurulum bulunamadı. Yeni kurulum yapılacak.${NC}"
 fi
 
-# Navigate to the network3 directory
-cd network3
+# Eski dosyaları temizleme
+if [ -d "$INSTALL_PATH" ]; then
+    echo -e "${YELLOW}>>> Eski kurulum temizleniyor...${NC}"
+    sudo bash $INSTALL_PATH/manager.sh down 2>/dev/null
+    rm -rf "$INSTALL_PATH"
+fi
 
-# Start the Network3 node manager
+# Yeni dosyaları indirme ve kurulum
+echo -e "${GREEN}>>> Güncel versiyon indiriliyor: ${VERSION}${NC}"
+wget https://network3.io/ubuntu-node-$VERSION.tar.gz -O network3-$VERSION.tar.gz
+mkdir -p "$INSTALL_PATH"
+tar -zxvf network3-$VERSION.tar.gz -C "$INSTALL_PATH"
+
+# Eğer dizin yapısı uygunsuzsa düzelt
+if [ -d "$INSTALL_PATH/ubuntu-node" ]; then
+    mv "$INSTALL_PATH/ubuntu-node"/* "$INSTALL_PATH/"
+    rm -rf "$INSTALL_PATH/ubuntu-node"
+fi
+
+# Node'u başlatma
+cd "$INSTALL_PATH"
+echo -e "${GREEN}>>> Network3 node başlatılıyor...${NC}"
 sudo bash manager.sh up
 
-# Retrieve the node key and ensure IPv4 is used
+# Node anahtarını alma ve IP bilgisi
 NODE_KEY=$(sudo bash manager.sh key | grep -E '^[A-Za-z0-9+/=]+$')
 if [ $? -eq 0 ]; then
     SERVER_IP=$(curl -4 -s ifconfig.me)
@@ -38,7 +52,7 @@ if [ $? -eq 0 ]; then
     echo -e "${YELLOW}Node Anahtarınız: ${NODE_KEY}${NC}"
     echo -e "${YELLOW}>>> Anahtarınızı aşağıdaki adreste kullanabilirsiniz:${NC}"
     echo -e "${YELLOW}https://account.network3.ai/main?o=${SERVER_IP}:8080${NC}"
-    echo -e "${GREEN}>>> Network3 node kurulumu tamamlandı.${NC}"
+    echo -e "${GREEN}>>> Network3 node kurulumu/güncellemesi tamamlandı.${NC}"
 else
     echo -e "${RED}!!! Node anahtarı alınırken bir hata oluştu.${NC}"
 fi
