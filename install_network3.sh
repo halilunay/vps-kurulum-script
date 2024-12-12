@@ -5,6 +5,8 @@ YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+VERSION="v2.1.1" # Güncel versiyon numarası
+
 echo -e "${GREEN}>>> Network3 node kurulumu başlıyor...${NC}"
 
 # Update and install dependencies
@@ -12,9 +14,9 @@ sudo apt update && sudo apt install -y wireguard net-tools
 /sbin/ifconfig eth0 up
 
 # Download and extract the Network3 node files
-wget https://network3.io/ubuntu-node-v2.1.0.tar -O network3-v2.1.0.tar
+wget https://network3.io/ubuntu-node-$VERSION.tar.gz -O network3-$VERSION.tar.gz
 mkdir -p network3
-tar -xf network3-v2.1.0.tar -C network3
+tar -zxvf network3-$VERSION.tar.gz -C network3
 
 # Check if "ubuntu-node" directory exists inside "network3" and fix the structure
 if [ -d "network3/ubuntu-node" ]; then
