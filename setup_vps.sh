@@ -1,36 +1,40 @@
 #!/bin/bash
 
-# Renkli çıktı için basit değişkenler (isteğe bağlı)
+# ---------------------------------------------
+# Renkler (isteğe bağlı, terminal çıktısı için)
+# ---------------------------------------------
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-# Burada disk cihazının adını belirleyin (/dev/vda, /dev/sda, /dev/nvme0n1 vs.)
+# ---------------------------------------------
+# Disk adı (lsblk ile kontrol ettiniz: /dev/vda)
+# ---------------------------------------------
 DISK_DEVICE="/dev/vda"
 
-# ------------------------------------------------------------------------
-# 1) TEMİZLİK (cleanup) FONKSİYONU
-#    Haftalık ya da manuel olarak yürütülecek bakım işlemleri.
-# ------------------------------------------------------------------------
+# ---------------------------------------------
+# 1) Temizlik (cleanup) fonksiyonu
+#    Haftalık (cron) veya manuel çağrılır.
+# ---------------------------------------------
 cleanup() {
   echo -e "${GREEN}--- Weekly Cleanup Started ---${NC}"
 
-  # 1) /var/log altındaki *.log dosyalarını sıfırlama
+  # 1) /var/log altındaki log dosyalarını sıfırla
   echo -e "${GREEN}[1/7] Truncating log files in /var/log...${NC}"
   find /var/log -type f -name "*.log" -exec truncate -s 0 {} \;
 
-  # 2) /tmp, /var/tmp ve /root/.cache altındaki geçici dosyaları silme
+  # 2) /tmp, /var/tmp, /root/.cache altındaki dosyaları sil
   echo -e "${GREEN}[2/7] Removing temporary files (/tmp, /var/tmp, /root/.cache)...${NC}"
   rm -rf /tmp/*
   rm -rf /var/tmp/*
   rm -rf /root/.cache/*
 
-  # 3) Bellek önbelleği temizleme (drop_caches)
+  # 3) Bellek önbelleğini (caches) boşalt
   echo -e "${GREEN}[3/7] Dropping Linux filesystem caches...${NC}"
   sync
   echo 3 > /proc/sys/vm/drop_caches
 
-  # 4) Kullanılmayan paketleri kaldırma
+  # 4) Kullanılmayan paketleri kaldır
   echo -e "${GREEN}[4/7] Autoremoving unused packages...${NC}"
   apt-get autoremove --purge -y
   apt-get clean
@@ -39,24 +43,22 @@ cleanup() {
   echo -e "${GREEN}[5/7] Displaying Docker system disk usage...${NC}"
   docker system df
 
-  # 6) Kullanılmayan (dangling) volume’ları listele
+  # 6) Kullanılmayan (dangling) volumelar var mı?
   echo -e "${GREEN}[6/7] Checking for dangling Docker volumes...${NC}"
   docker volume ls -f dangling=true
 
-  # 7) Docker sistemi temizle (kullanılmayan container, image, network vs.)
+  # 7) Docker kullanılmayan verileri sil
   echo -e "${GREEN}[7/7] Pruning unused Docker data...${NC}"
   docker system prune -f
 
-  echo -e "${GREEN}--- Cleanup Completed! ---${NC}"
+  echo -e "${GREEN}--- Cleanup Completed!${NC}"
 }
 
-# ------------------------------------------------------------------------
-# 2) KURULUM (setup) FONKSİYONU
-#    Sunucu ilk defa hazırlanırken kullanılır.
-#    Swap, Docker, Docker Compose, Chromium, performans araçları vb.
-# ------------------------------------------------------------------------
+# ---------------------------------------------
+# 2) Kurulum (setup) fonksiyonu
+#    Swap, Docker, Chromium, vb. kurulumları yapar.
+# ---------------------------------------------
 setup() {
-  # SWAP oluşturma (eğer yoksa)
   echo -e "${GREEN}>>> Checking /swapfile status...${NC}"
   if [ ! -f /swapfile ]; then
     echo -e "${GREEN}>>> Creating 10GB Swap...${NC}"
@@ -69,12 +71,10 @@ setup() {
     echo -e "${GREEN}/swapfile already exists, skipping creation.${NC}"
   fi
 
-  # Sistemi güncelle
   echo -e "${GREEN}>>> Updating system packages...${NC}"
   apt-get update && apt-get upgrade -y
   echo -e "${GREEN}>>> System update completed.${NC}"
 
-  # Docker Kurulumu
   echo -e "${GREEN}>>> Installing Docker & dependencies...${NC}"
   apt-get install -y ca-certificates curl gnupg lsb-release
   mkdir -p /etc/apt/keyrings
@@ -88,17 +88,31 @@ setup() {
   apt-get install -y docker-ce docker-ce-cli containerd.io
   echo -e "${GREEN}>>> Docker installation completed.${NC}"
 
-  # Docker Compose (en güncel sürüm)  
   echo -e "${GREEN}>>> Installing Docker Compose (latest release)...${NC}"
   curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" \
     -o /usr/local/bin/docker-compose
   chmod +x /usr/local/bin/docker-compose
   echo -e "${GREEN}>>> Docker Compose installation completed.${NC}"
 
-  # Chromium Container için docker-compose.yaml oluşturma
-  echo -e "${GREEN}>>> Creating Docker Compose file for Chromium...${NC}"
+  # ---------------------------------------------
+  # ESKİ CHROMIUM CONTAINER ÇAKIŞMALARINI ÖNLEME
+  # ---------------------------------------------
+  echo -e "${GREEN}>>> Removing old Chromium container (if exists)...${NC}"
+  # Docker Compose V2'de "docker compose" komutu, V1'de "docker-compose"
+  # Aşağıdaki "down" ile varsa eski container durur ve silinir.
   mkdir -p "$HOME/chromium"
-  cat <<EOL > "$HOME/chromium/docker-compose.yaml"
+  cd "$HOME/chromium" || exit 1
+
+  # (Burası: eğer önceki scriptler "chromium" container_name ile çalıştıysa, "down" yapmak faydalı olur)
+  if [ -f docker-compose.yaml ] || [ -f docker-compose.yml ]; then
+    docker-compose down || true
+  fi
+
+  # ---------------------------------------------
+  # YENİ DOCKER-COMPOSE.YAML OLUŞTUR
+  # ---------------------------------------------
+  echo -e "${GREEN}>>> Creating Docker Compose file for Chromium...${NC}"
+  cat <<EOL > docker-compose.yaml
 services:
   chromium:
     image: lscr.io/linuxserver/chromium:latest
@@ -124,44 +138,47 @@ services:
 EOL
   echo -e "${GREEN}>>> Docker Compose file created.${NC}"
 
-  # Chromium container'ı ayağa kaldırma
   echo -e "${GREEN}>>> Starting Chromium container...${NC}"
-  cd "$HOME/chromium"
-  # Docker Compose v2 (komut: docker compose) ya da v1 (komut: docker-compose) kullanılabilir.
+  # Mevcut dizinde (~/chromium) docker-compose.yaml var
   docker-compose up -d
-  cd ~
+  cd ~ || exit 1
   echo -e "${GREEN}>>> Chromium is up and running.${NC}"
 
-  # Performans araçları
+  # ---------------------------------------------
+  # Performans Araçları
+  # ---------------------------------------------
   echo -e "${GREEN}>>> Installing performance tools...${NC}"
   apt-get install -y bpytop hdparm sysbench speedtest-cli
   echo -e "${GREEN}>>> Tools installed (bpytop, hdparm, sysbench, speedtest-cli).${NC}"
 
-  # Performans testleri
+  # ---------------------------------------------
+  # Performans Testleri
+  # ---------------------------------------------
   echo -e "${GREEN}>>> Running performance tests...${NC}"
-  # Speedtest bazen 403 hatası verebilir, sunucunuzun IP'si engellenmiş olabilir.
+  # Speedtest bazen 403 verir, engelli IP'de olabilir
   speedtest-cli > speedtest.txt 2>&1 || echo "Speedtest might be blocked or returned an error."
   sysbench memory --memory-block-size=1M --memory-total-size=4G run > ram_benchmark.txt
   hdparm -Tt "$DISK_DEVICE" > disk_benchmark.txt 2>&1 || echo "Check your disk device name."
-  
-  echo -e "${GREEN}>>> Performance tests completed. See the results below:${NC}"
+
+  echo -e "${GREEN}>>> Performance tests completed. Results below:${NC}"
   cat speedtest.txt
   cat ram_benchmark.txt
   cat disk_benchmark.txt
 
-  # Haftalık temizlik cron job
+  # ---------------------------------------------
+  # Haftalık Temizlik cron job
+  # ---------------------------------------------
   echo -e "${GREEN}>>> Adding weekly cleanup cron job (Sundays at 04:00)...${NC}"
   (crontab -l 2>/dev/null; echo "0 4 * * 0 /root/setup_vps.sh cleanup >> /root/cleanup.log 2>&1") | crontab -
   
   echo -e "${GREEN}>>> Setup complete!${NC}"
 }
 
-# ------------------------------------------------------------------------
-# 3) SCRIPT GİRİŞ NOKTASI
-#    Parametre kontrolü:
-#      - "./setup_vps.sh"            => Kurulum mod
-#      - "./setup_vps.sh cleanup"    => Temizlik mod
-# ------------------------------------------------------------------------
+# ---------------------------------------------
+# 3) Script Giriş Noktası
+#    - "./setup_vps.sh"            => setup
+#    - "./setup_vps.sh cleanup"    => temizlik
+# ---------------------------------------------
 if [ "$1" == "cleanup" ]; then
   cleanup
 else
